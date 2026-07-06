@@ -144,6 +144,8 @@
   .copy{flex:1;background:var(--text);color:var(--bg);border:1.5px solid var(--text);font-size:16px;font-weight:700;min-height:54px;}
   .copy:active{opacity:.85;}
   .copy.done{background:var(--bg);color:var(--text);}
+  .tg{flex:1;background:#2CA5E0;color:#fff;border:1.5px solid #2CA5E0;font-size:16px;font-weight:700;min-height:54px;}
+  .tg:active{opacity:.85;}
   .clear{background:var(--bg);color:var(--text);border:1.5px solid var(--line-dark);font-size:15px;padding:0 20px;min-height:54px;}
   button:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
   .hint{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:14px;}
@@ -343,7 +345,8 @@
      ================================================================ -->
 <div class="actionbar hidden" id="actionbar">
   <div class="inner">
-    <button class="copy" id="copyBtn" type="button">Copy entry</button>
+    <button class="tg" id="tgBtn" type="button">Telegram</button>
+    <button class="copy" id="copyBtn" type="button">Copy</button>
     <button class="clear" id="clearBtn" type="button">Clear</button>
   </div>
 </div>
@@ -361,6 +364,7 @@
   var actionBar = $('actionbar');
   var copyBtn   = $('copyBtn');
   var clearBtn  = $('clearBtn');
+  var tgBtn     = $('tgBtn');
   var currentScreen = 'screen-home';
 
   /* ----------------------------------------------------------------
@@ -627,6 +631,12 @@
     } else {
       fallbackCopy(text);
     }
+  });
+
+  tgBtn.addEventListener('click', function(){
+    var text = getPlainText();
+    if(!text) return;
+    window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(text), '_blank');
   });
 
   clearBtn.addEventListener('click', function(){
