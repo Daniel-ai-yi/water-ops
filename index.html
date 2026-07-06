@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Water Ops">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon-180.png">
+<title>Water Ops</title>
+<style>
+  :root{
+    --bg:#ffffff; --text:#000000; --muted:#5f5f5f;
+    --line:#d4d4d4; --line-dark:#000000; --fill:#f4f4f4;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --bar:74px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.5; -webkit-tap-highlight-color:transparent;
+    padding-top:max(16px,env(safe-area-inset-top));
+  }
+  .wrap{max-width:600px;margin:0 auto;padding:0 16px;}
+
+  /* ---- Screens ---- */
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* ---- Header ---- */
+  header{margin-bottom:8px;border-bottom:2px solid var(--line-dark);padding-bottom:12px;}
+  h1{font-size:21px;font-weight:700;letter-spacing:-0.01em;}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:5px;}
+
+  /* ---- Home screen ---- */
+  #screen-home{padding-bottom:calc(env(safe-area-inset-bottom) + 24px);}
+  .menu-grid{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+  .menu-card{
+    width:100%; background:var(--bg); color:var(--text);
+    border:2px solid var(--line-dark); border-radius:12px;
+    padding:18px 20px; cursor:pointer; user-select:none; text-align:left;
+    display:flex; align-items:center; gap:16px;
+  }
+  .menu-card:active{background:var(--fill);}
+  .menu-card:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  .card-body{flex:1;}
+  .card-title{font-size:17px;font-weight:700;}
+  .card-desc{font-size:13px;color:var(--muted);margin-top:3px;}
+  .card-arrow{font-size:22px;color:var(--line-dark);}
+
+  /* ---- Tool screens ---- */
+  .tool-wrap{padding-bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 12px);}
+
+  /* ---- Back button ---- */
+  .back-btn{
+    display:inline-flex; align-items:center; gap:5px;
+    background:none; border:none; padding:0; margin-bottom:14px;
+    font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted);
+    cursor:pointer;
+  }
+  .back-btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  .back-btn:active{opacity:.7;}
+
+  /* ---- Fields ---- */
+  .nojs{border:2px solid var(--line-dark);border-radius:10px;padding:14px 16px;margin:16px 0;background:var(--fill);font-size:14px;line-height:1.55;}
+  .nojs strong{display:block;margin-bottom:4px;}
+  .field{padding:16px 0;border-bottom:1px solid var(--line);}
+  .field:first-of-type{padding-top:14px;}
+  .label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .name{font-weight:600;font-size:16px;}
+  .unit{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
+
+  /* Segmented radio */
+  .seg{display:flex;gap:10px;}
+  .seg>*{flex:1;}
+  .seg input{position:absolute;opacity:0;pointer-events:none;}
+  .seg label{
+    display:flex; align-items:center; justify-content:center; min-height:52px;
+    cursor:pointer; text-align:center;
+    border:1.5px solid var(--line-dark); border-radius:10px;
+    background:var(--bg); color:var(--text); font-size:15px; font-weight:500; user-select:none;
+  }
+  .seg input:checked+label{background:var(--text);color:var(--bg);font-weight:700;}
+  .seg input:focus-visible+label{outline:2px solid var(--text);outline-offset:2px;}
+
+  /* Text / number inputs */
+  .inp{
+    width:100%; background:var(--bg); color:var(--text);
+    border:1.5px solid var(--line-dark); border-radius:10px;
+    font-family:var(--mono); font-size:18px; min-height:52px; padding:0 14px;
+  }
+  .inp::placeholder{color:var(--muted);}
+  .inp:focus{outline:2px solid var(--text);outline-offset:1px;}
+  select.inp{
+    appearance:none; -webkit-appearance:none; padding-right:42px;
+    background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);
+    background-position:calc(100% - 20px) 24px,calc(100% - 15px) 24px;
+    background-size:6px 6px,6px 6px; background-repeat:no-repeat;
+  }
+  .inp::-webkit-outer-spin-button,.inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .inp[type=number]{-moz-appearance:textfield;}
+
+  /* Input + less-than toggle row */
+  .row{display:flex;gap:10px;align-items:stretch;}
+  .row .inp{flex:1;}
+  .lt{
+    flex:0 0 auto; min-width:74px; padding:0 10px;
+    border:1.5px solid var(--line-dark); border-radius:10px;
+    background:var(--bg); color:var(--text);
+    font-family:var(--sans); font-size:12px; font-weight:600; line-height:1.15;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    cursor:pointer; user-select:none;
+  }
+  .lt:active{opacity:.85;}
+  .lt[aria-pressed="true"]{background:var(--text);color:var(--bg);font-weight:700;}
+  .lt:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+
+  /* Output preview */
+  .out-wrap{margin-top:20px;border:2px solid var(--line-dark);border-radius:12px;overflow:hidden;}
+  .out-top{padding:10px 16px;border-bottom:1px solid var(--line-dark);font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+  pre.out{font-family:var(--mono);font-size:15px;line-height:2;padding:16px;margin:0;white-space:pre-wrap;word-break:break-word;min-height:28px;}
+  pre.out .empty{color:var(--muted);}
+  pre.out .ph{color:#b0b0b0;}
+  .note{font-family:var(--mono);font-size:12px;color:var(--muted);padding:0 16px 14px;display:none;}
+  .note.show{display:block;}
+
+  /* Sticky bottom action bar */
+  .actionbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    display:flex; gap:10px;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,0.96);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    border-top:1.5px solid var(--line-dark);
+  }
+  .actionbar.hidden{display:none;}
+  .actionbar .inner{max-width:600px;margin:0 auto;display:flex;gap:10px;width:100%;}
+  button{font-family:var(--sans);cursor:pointer;border-radius:10px;font-weight:600;}
+  .copy{flex:1;background:var(--text);color:var(--bg);border:1.5px solid var(--text);font-size:16px;font-weight:700;min-height:54px;}
+  .copy:active{opacity:.85;}
+  .copy.done{background:var(--bg);color:var(--text);}
+  .clear{background:var(--bg);color:var(--text);border:1.5px solid var(--line-dark);font-size:15px;padding:0 20px;min-height:54px;}
+  button:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:14px;}
+</style>
+</head>
+<body>
+<noscript>
+  <div class="wrap"><div class="nojs"><strong>Open this in a browser, not a file preview.</strong>The live entry and Copy button need JavaScript. If you saved this as a Home Screen app, just launch it from the icon.</div></div>
+</noscript>
+
+<!-- ================================================================
+     HOME SCREEN
+     ================================================================ -->
+<div id="screen-home" class="screen active">
+  <div class="wrap">
+    <header>
+      <h1>Water Ops</h1>
+      <p class="sub">Select a tool to get started.</p>
+    </header>
+    <div class="menu-grid">
+      <button class="menu-card" type="button" onclick="showScreen('screen-sample')">
+        <div class="card-body">
+          <div class="card-title">EQ Sampling</div>
+          <div class="card-desc">Record sample readings for EQ / Lamella tanks</div>
+        </div>
+        <span class="card-arrow">&#8250;</span>
+      </button>
+      <button class="menu-card" type="button" onclick="showScreen('screen-log')">
+        <div class="card-body">
+          <div class="card-title">EQ Log</div>
+          <div class="card-desc">Log 30-minute EQ tank readings</div>
+        </div>
+        <span class="card-arrow">&#8250;</span>
+      </button>
+      <button class="menu-card" type="button" onclick="showScreen('screen-flume')">
+        <div class="card-body">
+          <div class="card-title">Parshall Flume</div>
+          <div class="card-desc">Record Parshall Flume flow measurements</div>
+        </div>
+        <span class="card-arrow">&#8250;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     EQ SAMPLING SCREEN
+     ================================================================ -->
+<div id="screen-sample" class="screen">
+  <div class="wrap tool-wrap">
+    <button class="back-btn" type="button" onclick="goHome()">&#8249; Menu</button>
+    <header>
+      <h1>EQ Sampling</h1>
+      <p class="sub">Pick a tank, enter the readings you have. It formats the same way every time, ready to copy.</p>
+    </header>
+
+    <div class="field">
+      <div class="label"><span class="name">Time</span><span class="unit">military &middot; 30-min</span></div>
+      <select class="inp" id="s-time" aria-label="Time"></select>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">EQ Sample Tank</span><span class="unit">EQ / Lamella</span></div>
+      <select class="inp" id="s-tank" aria-label="EQ Sample Tank">
+        <option value="">&#8212; Select tank &#8212;</option>
+        <option value="eqA">EQ Tank A</option>
+        <option value="eqB">EQ Tank B</option>
+        <option value="lamA">Lamella A</option>
+        <option value="lamB">Lamella B</option>
+      </select>
+    </div>
+
+    <div id="s-fields"></div>
+
+    <div class="out-wrap">
+      <div class="out-top">Field Entry</div>
+      <pre id="s-out" class="out"></pre>
+    </div>
+    <p class="hint">Only the readings you enter appear in the copy.</p>
+  </div>
+</div>
+
+<!-- ================================================================
+     EQ LOG SCREEN
+     ================================================================ -->
+<div id="screen-log" class="screen">
+  <div class="wrap tool-wrap">
+    <button class="back-btn" type="button" onclick="goHome()">&#8249; Menu</button>
+    <header>
+      <h1>EQ Log</h1>
+      <p class="sub">Enter a 30-minute reading. It formats the same way every time, ready to copy.</p>
+    </header>
+
+    <div class="field">
+      <div class="label"><span class="name">Time</span><span class="unit">military &middot; 30-min</span></div>
+      <select class="inp" id="l-time" aria-label="Time"></select>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">EQ Tank</span><span class="unit">A or B</span></div>
+      <div class="seg" role="radiogroup" aria-label="EQ Tank">
+        <input type="radio" name="l-tank" id="l-tankA" value="A"><label for="l-tankA">Tank A</label>
+        <input type="radio" name="l-tank" id="l-tankB" value="B"><label for="l-tankB">Tank B</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">pH</span><span class="unit">0.0</span></div>
+      <input class="inp" id="l-ph" type="number" inputmode="decimal" step="0.1" min="0" max="14" placeholder="0.0" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Tank Level</span><span class="unit">ft &middot; 00.0</span></div>
+      <input class="inp" id="l-level" type="number" inputmode="decimal" step="0.1" min="0" placeholder="00.0" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Dosing CO&#8322;</span><span class="unit">Yes / No</span></div>
+      <div class="seg" role="radiogroup" aria-label="Dosing CO2">
+        <input type="radio" name="l-dose" id="l-doseY" value="Yes"><label for="l-doseY">Yes</label>
+        <input type="radio" name="l-dose" id="l-doseN" value="No"><label for="l-doseN">No</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Discharge Status</span></div>
+      <div class="seg" role="radiogroup" aria-label="Discharge status">
+        <input type="radio" name="l-disc" id="l-discY" value="Discharging"><label for="l-discY">Discharging</label>
+        <input type="radio" name="l-disc" id="l-discN" value="Not Discharging"><label for="l-discN">Not</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Totalizer FM</span><span class="unit">cu ft</span></div>
+      <input class="inp" id="l-tot" type="number" inputmode="numeric" placeholder="Enter totalizer reading" autocomplete="off">
+    </div>
+
+    <div class="out-wrap">
+      <div class="out-top">Field Entry</div>
+      <pre id="l-out" class="out"></pre>
+    </div>
+    <p class="hint">Only the readings you enter appear in the copy.</p>
+  </div>
+</div>
+
+<!-- ================================================================
+     PARSHALL FLUME SCREEN
+     ================================================================ -->
+<div id="screen-flume" class="screen">
+  <div class="wrap tool-wrap">
+    <button class="back-btn" type="button" onclick="goHome()">&#8249; Menu</button>
+    <header>
+      <h1>Parshall Flume</h1>
+      <p class="sub">Enter a 30-minute reading. It formats the same way every time, ready to copy.</p>
+    </header>
+
+    <div class="field">
+      <div class="label"><span class="name">Time</span><span class="unit">military &middot; 30-min</span></div>
+      <select class="inp" id="f-time" aria-label="Time"></select>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Flow</span><span class="unit">GPM &middot; 0.0</span></div>
+      <input class="inp" id="f-flow" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Water Level</span><span class="unit">FT &middot; 0.00</span></div>
+      <input class="inp" id="f-wl" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">pH</span><span class="unit">0.0</span></div>
+      <input class="inp" id="f-ph" type="number" inputmode="decimal" step="0.1" min="0" max="14" placeholder="0.0" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Dissolved Oxygen</span><span class="unit">mg/L &middot; 0.0</span></div>
+      <input class="inp" id="f-do" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="name">Temperature</span><span class="unit">&deg;F &middot; 0.0</span></div>
+      <input class="inp" id="f-temp" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+    </div>
+
+    <div class="out-wrap">
+      <div class="out-top">Field Entry</div>
+      <pre id="f-out" class="out"></pre>
+    </div>
+    <p class="hint">Only the readings you enter appear in the copy.</p>
+  </div>
+</div>
+
+<!-- ================================================================
+     SHARED ACTION BAR (hidden on home)
+     ================================================================ -->
+<div class="actionbar hidden" id="actionbar">
+  <div class="inner">
+    <button class="copy" id="copyBtn" type="button">Copy entry</button>
+    <button class="clear" id="clearBtn" type="button">Clear</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ----------------------------------------------------------------
+     Utilities
+  ---------------------------------------------------------------- */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return s.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function radioVal(name){ var el=document.querySelector('input[name="'+name+'"]:checked'); return el?el.value:null; }
+
+  var actionBar = $('actionbar');
+  var copyBtn   = $('copyBtn');
+  var clearBtn  = $('clearBtn');
+  var currentScreen = 'screen-home';
+
+  /* ----------------------------------------------------------------
+     Screen management
+  ---------------------------------------------------------------- */
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    $(id).classList.add('active');
+    currentScreen = id;
+    actionBar.classList.toggle('hidden', id === 'screen-home');
+    window.scrollTo(0, 0);
+  }
+  function goHome(){ showScreen('screen-home'); }
+  window.showScreen = showScreen;
+  window.goHome = goHome;
+
+  /* ----------------------------------------------------------------
+     Build 30-min time dropdown options, auto-select nearest slot
+  ---------------------------------------------------------------- */
+  function buildTimeOptions(selId){
+    var sel = $(selId);
+    for(var h=0; h<24; h++){
+      for(var m=0; m<60; m+=30){
+        var val = pad2(h)+pad2(m);
+        var opt = document.createElement('option');
+        opt.value = val; opt.textContent = val;
+        sel.appendChild(opt);
+      }
+    }
+    var d=new Date(), h=d.getHours(), m=d.getMinutes();
+    if(m<15){ m=0; } else if(m<45){ m=30; } else { m=0; h=(h+1)%24; }
+    sel.value = pad2(h)+pad2(m);
+  }
+  buildTimeOptions('s-time');
+  buildTimeOptions('l-time');
+  buildTimeOptions('f-time');
+
+  /* ================================================================
+     EQ SAMPLING
+  ================================================================ */
+  var SF = {
+    tss:       {out:'TSS',        label:'TSS',              ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    ph:        {out:'pH',         label:'pH',               ph_:'0.00', dec:2,     unit:'',      lt:false},
+    level:     {out:'Level',      label:'Level',            ph_:'0.00', dec:2,     unit:'',      lt:false},
+    phosphate: {out:'Phosphate',  label:'Phosphate',        ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    sulfate:   {out:'Sulfate',    label:'Sulfate',          ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    cod:       {out:'COD',        label:'COD',              ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    h2o2:      {out:'H2O2',       label:'H\u2082O\u2082',  ph_:'0.0',  dec:1,     unit:'',      lt:false},
+    alkalinity:{out:'Alkalinity', label:'Alkalinity',       ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    turbidity: {out:'Turbidity',  label:'Turbidity',        ph_:'000',  int:true,  unit:' NTU',  lt:true }
+  };
+  var ST = {
+    eqA:  {header:'EQ Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
+    eqB:  {header:'EQ Sample Tank B',    fields:['tss','phosphate','sulfate','h2o2','alkalinity','cod']},
+    lamA: {header:'EQ Sample Lamella A', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
+    lamB: {header:'EQ Sample Lamella B', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
+  };
+  var sVals={}, sLt={};
+
+  function sUnitLabel(f){ return f.unit ? f.unit.trim() : (f.dec===2?'0.00':f.dec===1?'0.0':''); }
+
+  function sBuildRow(id){
+    var f=SF[id];
+    var field=document.createElement('div'); field.className='field';
+    var lbl=document.createElement('div'); lbl.className='label';
+    var nm=document.createElement('span'); nm.className='name'; nm.innerHTML=f.label;
+    var un=document.createElement('span'); un.className='unit'; un.textContent=sUnitLabel(f);
+    lbl.appendChild(nm); lbl.appendChild(un); field.appendChild(lbl);
+
+    var row=document.createElement('div'); row.className='row';
+    var inp=document.createElement('input');
+    inp.className='inp'; inp.type='number';
+    inp.inputMode = f.dec ? 'decimal' : 'numeric';
+    if(f.dec){ inp.step = f.dec===2 ? '0.01' : '0.1'; }
+    inp.setAttribute('autocomplete','off');
+    inp.placeholder = f.ph_;
+    inp.id = 's-f-'+id;
+    inp.value = sVals[id]||'';
+    inp.addEventListener('input', function(){ sVals[id]=inp.value; sRender(); });
+    row.appendChild(inp);
+
+    if(f.lt){
+      var btn=document.createElement('button');
+      btn.type='button'; btn.className='lt';
+      btn.textContent='less than';
+      btn.setAttribute('aria-pressed', sLt[id]?'true':'false');
+      btn.setAttribute('aria-label','Mark '+f.out+' as less than');
+      btn.addEventListener('click', function(){
+        sLt[id]=!sLt[id];
+        btn.setAttribute('aria-pressed', sLt[id]?'true':'false');
+        sRender();
+      });
+      row.appendChild(btn);
+    }
+    field.appendChild(row);
+    return field;
+  }
+
+  function sRebuildFields(){
+    var box=$('s-fields'); box.innerHTML='';
+    var tank=$('s-tank').value;
+    if(!tank||!ST[tank]) return;
+    ST[tank].fields.forEach(function(id){ box.appendChild(sBuildRow(id)); });
+  }
+
+  function sIsPlain(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s); }
+  function sFmtValue(id){
+    var f=SF[id], s=(sVals[id]||'').trim();
+    if(s==='') return null;
+    var v;
+    if(sIsPlain(s)){
+      if(f.dec){ v=parseFloat(s).toFixed(f.dec); }
+      else { v=String(Number(s)); }
+    } else { v=s; }
+    if(f.lt && sLt[id]) v='less than '+v;
+    return v+f.unit;
+  }
+
+  function sRender(){
+    var outEl=$('s-out'), tank=$('s-tank').value;
+    if(!tank||!ST[tank]){
+      outEl.innerHTML='<span class="empty">Select a tank above.</span>';
+      return;
+    }
+    var tv=$('s-time').value;
+    var tDisp=tv.substring(0,2)+':'+tv.substring(2,4);
+    var t=ST[tank], lines=['Time - '+tDisp, t.header, ''];
+    t.fields.forEach(function(id){ var v=sFmtValue(id); if(v!==null) lines.push(SF[id].out+' - '+v); });
+    outEl.innerHTML = lines.map(esc).join('\n');
+  }
+
+  function sClear(){
+    sVals={}; sLt={};
+    $('s-tank').value='';
+    sRebuildFields(); sRender();
+  }
+
+  $('s-tank').addEventListener('change', function(){ sRebuildFields(); sRender(); });
+  $('s-time').addEventListener('change', sRender);
+  sRender();
+
+  /* ================================================================
+     EQ LOG
+  ================================================================ */
+  function lFmtPh(v){ if(v===''||isNaN(parseFloat(v))) return null; return parseFloat(v).toFixed(1); }
+  function lFmtLevel(v){
+    if(v===''||isNaN(parseFloat(v))) return null;
+    var p=parseFloat(v).toFixed(1).split('.');
+    return p[0].padStart(2,'0')+'.'+p[1];
+  }
+  function lFmtTot(v){ if(v==='') return null; return String(v); }
+
+  function lBuild(){
+    var tank=radioVal('l-tank'), dose=radioVal('l-dose'), disc=radioVal('l-disc');
+    var ph=lFmtPh($('l-ph').value), lvl=lFmtLevel($('l-level').value), tot=lFmtTot($('l-tot').value);
+    var lines=['Time: '+$('l-time').value];
+    if(tank)  lines.push('Tank - EQ Tank '+tank);
+    if(ph)    lines.push('pH = '+ph);
+    if(lvl)   lines.push('Tank Level = '+lvl+' ft');
+    if(dose)  lines.push('Dosing CO2 - '+dose);
+    if(disc)  lines.push(disc);
+    if(tot)   lines.push('Totalizer FM = '+tot+' cu ft');
+    return lines;
+  }
+
+  function lRender(){
+    $('l-out').innerHTML = lBuild().map(esc).join('\n');
+  }
+
+  function lClear(){
+    $('l-ph').value=''; $('l-level').value=''; $('l-tot').value='';
+    document.querySelectorAll('input[name="l-tank"],input[name="l-dose"],input[name="l-disc"]').forEach(function(r){ r.checked=false; });
+    lRender();
+  }
+
+  ['l-ph','l-level','l-tot','l-time'].forEach(function(id){
+    var el=$(id);
+    el.addEventListener('change', lRender);
+    if(el.type==='number') el.addEventListener('input', lRender);
+  });
+  document.querySelectorAll('input[name="l-tank"],input[name="l-dose"],input[name="l-disc"]').forEach(function(el){
+    el.addEventListener('change', lRender);
+  });
+  lRender();
+
+  /* ================================================================
+     PARSHALL FLUME
+  ================================================================ */
+  function fFmt1(v){ if(v===''||isNaN(parseFloat(v))) return null; return parseFloat(v).toFixed(1); }
+  function fFmt2(v){ if(v===''||isNaN(parseFloat(v))) return null; return parseFloat(v).toFixed(2); }
+
+  function fBuild(){
+    var time=$('f-time').value;
+    var flow=fFmt1($('f-flow').value), wl=fFmt2($('f-wl').value);
+    var ph=fFmt1($('f-ph').value), dox=fFmt1($('f-do').value), temp=fFmt1($('f-temp').value);
+    var tDisp=time.substring(0,2)+':'+time.substring(2,4);
+    var lines=['Time - '+tDisp, 'Parshall Flume'];
+    if(flow!==null) lines.push('Flow = '+flow+' GPM');
+    if(wl!==null)   lines.push('Water Level = '+wl+' FT');
+    if(ph!==null)   lines.push('pH = '+ph);
+    if(dox!==null)  lines.push('Dissolved Oxygen = '+dox+' mg/L');
+    if(temp!==null) lines.push('Temperature = '+temp+' F');
+    return lines;
+  }
+
+  function fRender(){
+    $('f-out').innerHTML = fBuild().map(esc).join('\n');
+  }
+
+  function fClear(){
+    $('f-flow').value=''; $('f-wl').value=''; $('f-ph').value='';
+    $('f-do').value=''; $('f-temp').value='';
+    fRender();
+  }
+
+  ['f-flow','f-wl','f-ph','f-do','f-temp','f-time'].forEach(function(id){
+    var el=$(id);
+    el.addEventListener('change', fRender);
+    if(el.type==='number') el.addEventListener('input', fRender);
+  });
+  fRender();
+
+  /* ================================================================
+     COPY & CLEAR
+  ================================================================ */
+  function getPlainText(){
+    if(currentScreen==='screen-sample'){
+      var tank=$('s-tank').value;
+      if(!tank||!ST[tank]) return null;
+      var tv=$('s-time').value;
+      var tDisp=tv.substring(0,2)+':'+tv.substring(2,4);
+      var t=ST[tank], lines=['Time - '+tDisp, t.header, ''];
+      t.fields.forEach(function(id){ var v=sFmtValue(id); if(v!==null) lines.push(SF[id].out+' - '+v); });
+      return lines.join('\n').trimEnd();
+    }
+    if(currentScreen==='screen-log'){
+      return lBuild().join('\n');
+    }
+    if(currentScreen==='screen-flume'){
+      return fBuild().join('\n');
+    }
+    return null;
+  }
+
+  function flashCopied(){
+    copyBtn.textContent='Copied!'; copyBtn.classList.add('done');
+    setTimeout(function(){ copyBtn.textContent='Copy entry'; copyBtn.classList.remove('done'); }, 1800);
+  }
+
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.cssText='position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+    flashCopied();
+  }
+
+  copyBtn.addEventListener('click', function(){
+    var text=getPlainText();
+    if(!text) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(flashCopied).catch(function(){ fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  });
+
+  clearBtn.addEventListener('click', function(){
+    if(currentScreen==='screen-sample') sClear();
+    else if(currentScreen==='screen-log') lClear();
+    else if(currentScreen==='screen-flume') fClear();
+  });
+
+  /* ================================================================
+     SERVICE WORKER
+  ================================================================ */
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
