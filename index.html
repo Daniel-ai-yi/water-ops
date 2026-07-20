@@ -412,13 +412,14 @@
     phosphate: {out:'Phosphate',  label:'Phosphate',        ph_:'000',  int:true,  unit:' mg/L', lt:true },
     sulfate:   {out:'Sulfate',    label:'Sulfate',          ph_:'000',  int:true,  unit:' mg/L', lt:true },
     cod:       {out:'COD',        label:'COD',              ph_:'000',  int:true,  unit:' mg/L', lt:true },
+    fluoride:  {out:'Fluoride',   label:'Fluoride',          ph_:'0.0',  dec:1,     unit:' mg/L', lt:true },
     h2o2:      {out:'H2O2',       label:'H\u2082O\u2082',  ph_:'0.0',  dec:1,     unit:'',      lt:false},
     alkalinity:{out:'Alkalinity', label:'Alkalinity',       ph_:'000',  int:true,  unit:' mg/L', lt:true },
     turbidity: {out:'Turbidity',  label:'Turbidity',        ph_:'000',  int:true,  unit:' NTU',  lt:true }
   };
   var ST = {
     eqA:  {header:'EQ Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
-    eqB:  {header:'EQ Sample Tank B',    fields:['tss','phosphate','sulfate','h2o2','alkalinity','cod']},
+    eqB:  {header:'EQ Sample Tank B',    fields:['tss','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
     lamA: {header:'EQ Sample Lamella A', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     lamB: {header:'EQ Sample Lamella B', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
   };
