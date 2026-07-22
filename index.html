@@ -245,13 +245,16 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="name">EQ Tank</span><span class="unit">A or B</span></div>
-      <div class="seg" role="radiogroup" aria-label="EQ Tank">
-        <input type="radio" name="l-tank" id="l-tankA" value="A"><label for="l-tankA">Tank A</label>
-        <input type="radio" name="l-tank" id="l-tankB" value="B"><label for="l-tankB">Tank B</label>
-      </div>
+      <div class="label"><span class="name">EQ Tank</span></div>
+      <select class="inp" id="l-tank" aria-label="EQ Tank">
+        <option value="">&#8212; Select tank &#8212;</option>
+        <option value="A">EQ Tank A</option>
+        <option value="B">EQ Tank B</option>
+        <option value="PA">Post Anoxic A</option>
+      </select>
     </div>
 
+    <div id="l-ab-fields">
     <div class="field">
       <div class="label"><span class="name">pH</span><span class="unit">0.0</span></div>
       <input class="inp" id="l-ph" type="number" inputmode="decimal" step="0.1" min="0" max="14" placeholder="0.0" autocomplete="off">
@@ -269,6 +272,38 @@
         <input type="radio" name="l-dose" id="l-doseN" value="No"><label for="l-doseN">No</label>
       </div>
     </div>
+    </div><!-- end l-ab-fields -->
+
+    <div id="l-pa-fields" style="display:none">
+    <div class="field">
+      <div class="label"><span class="name">pH at HMI</span><span class="unit">0.0</span></div>
+      <input class="inp" id="l-pa-ph-hmi" type="number" inputmode="decimal" step="0.1" min="0" max="14" placeholder="0.0" autocomplete="off">
+    </div>
+    <div class="field">
+      <div class="label"><span class="name">pH with Myron L</span><span class="unit">0.0</span></div>
+      <input class="inp" id="l-pa-ph-ml" type="number" inputmode="decimal" step="0.1" min="0" max="14" placeholder="0.0" autocomplete="off">
+    </div>
+    <div class="field">
+      <div class="label"><span class="name">Tank Level</span><span class="unit">ft &middot; 00.0</span></div>
+      <input class="inp" id="l-pa-level" type="number" inputmode="decimal" step="0.1" min="0" placeholder="00.0" autocomplete="off">
+    </div>
+    <div class="field">
+      <div class="label"><span class="name">Dosing CO&#8322;</span><span class="unit">No / in Auto / Yes</span></div>
+      <div class="seg" role="radiogroup" aria-label="Dosing CO2">
+        <input type="radio" name="l-pa-dose" id="l-pa-doseN" value="No"><label for="l-pa-doseN">No</label>
+        <input type="radio" name="l-pa-dose" id="l-pa-doseA" value="in Auto"><label for="l-pa-doseA">in Auto</label>
+        <input type="radio" name="l-pa-dose" id="l-pa-doseY" value="Yes"><label for="l-pa-doseY">Yes</label>
+      </div>
+    </div>
+    <div class="field" id="l-pa-autoflow" style="display:none">
+      <div class="label"><span class="name">Auto Flow Rate</span><span class="unit">0.0 &#8211; 0.0</span></div>
+      <div class="row" style="align-items:center">
+        <input class="inp" id="l-pa-auto-low" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+        <span style="display:flex;align-items:center;justify-content:center;min-width:32px;font-weight:700;color:var(--muted)">&#8211;</span>
+        <input class="inp" id="l-pa-auto-high" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+      </div>
+    </div>
+    </div><!-- end l-pa-fields -->
 
     <div class="field">
       <div class="label"><span class="name">Discharge Status</span></div>
@@ -519,15 +554,34 @@
   function lFmtTot(v){ if(v==='') return null; return String(v); }
 
   function lBuild(){
-    var tank=radioVal('l-tank'), dose=radioVal('l-dose'), disc=radioVal('l-disc');
-    var ph=lFmtPh($('l-ph').value), lvl=lFmtLevel($('l-level').value), tot=lFmtTot($('l-tot').value);
+    var tank=$('l-tank').value, disc=radioVal('l-disc'), tot=lFmtTot($('l-tot').value);
     var lines=['Time: '+$('l-time').value];
-    if(tank)  lines.push('Tank - EQ Tank '+tank);
-    if(ph)    lines.push('pH = '+ph);
-    if(lvl)   lines.push('Tank Level = '+lvl+' ft');
-    if(dose)  lines.push('Dosing CO2 - '+dose);
-    if(disc)  lines.push(disc);
-    if(tot)   lines.push('Totalizer FM = '+tot+' cu ft');
+    if(tank==='PA'){
+      lines.push('Tank - Post Anoxic A');
+      var phHmi=lFmtPh($('l-pa-ph-hmi').value), phMl=lFmtPh($('l-pa-ph-ml').value);
+      var lvl=lFmtLevel($('l-pa-level').value), dose=radioVal('l-pa-dose');
+      if(phHmi) lines.push('pH = '+phHmi+' at HMI');
+      if(phMl)  lines.push('pH = '+phMl+' with Myron L');
+      if(lvl)   lines.push('Tank Level = '+lvl+' ft');
+      if(dose){
+        if(dose==='in Auto'){
+          var lo=$('l-pa-auto-low').value, hi=$('l-pa-auto-high').value;
+          var loF=lo!==''?parseFloat(lo).toFixed(1):'0.0', hiF=hi!==''?parseFloat(hi).toFixed(1):'0.0';
+          lines.push('Dosing CO2 - in Auto ('+loF+' - '+hiF+')');
+        } else {
+          lines.push('Dosing CO2 - '+dose);
+        }
+      }
+    } else {
+      var dose=radioVal('l-dose');
+      var ph=lFmtPh($('l-ph').value), lvl=lFmtLevel($('l-level').value);
+      if(tank)  lines.push('Tank - EQ Tank '+tank);
+      if(ph)    lines.push('pH = '+ph);
+      if(lvl)   lines.push('Tank Level = '+lvl+' ft');
+      if(dose)  lines.push('Dosing CO2 - '+dose);
+    }
+    if(disc) lines.push(disc);
+    if(tot)  lines.push('Totalizer FM = '+tot+' cu ft');
     return lines;
   }
 
@@ -536,18 +590,41 @@
   }
 
   function lClear(){
+    $('l-tank').value='';
     $('l-ph').value=''; $('l-level').value=''; $('l-tot').value='';
-    document.querySelectorAll('input[name="l-tank"],input[name="l-dose"],input[name="l-disc"]').forEach(function(r){ r.checked=false; });
+    $('l-pa-ph-hmi').value=''; $('l-pa-ph-ml').value='';
+    $('l-pa-level').value=''; $('l-pa-auto-low').value=''; $('l-pa-auto-high').value='';
+    document.querySelectorAll('input[name="l-dose"],input[name="l-disc"],input[name="l-pa-dose"]').forEach(function(r){ r.checked=false; });
+    $('l-pa-autoflow').style.display='none';
+    lUpdateTankView();
+  }
+
+  function lUpdateTankView(){
+    var isPA=$('l-tank').value==='PA';
+    $('l-ab-fields').style.display=isPA?'none':'';
+    $('l-pa-fields').style.display=isPA?'':'none';
     lRender();
   }
+  $('l-tank').addEventListener('change', lUpdateTankView);
 
   ['l-ph','l-level','l-tot','l-time'].forEach(function(id){
     var el=$(id);
     el.addEventListener('change', lRender);
     if(el.type==='number') el.addEventListener('input', lRender);
   });
-  document.querySelectorAll('input[name="l-tank"],input[name="l-dose"],input[name="l-disc"]').forEach(function(el){
+  ['l-pa-ph-hmi','l-pa-ph-ml','l-pa-level','l-pa-auto-low','l-pa-auto-high'].forEach(function(id){
+    var el=$(id);
+    el.addEventListener('input', lRender);
     el.addEventListener('change', lRender);
+  });
+  document.querySelectorAll('input[name="l-dose"],input[name="l-disc"]').forEach(function(el){
+    el.addEventListener('change', lRender);
+  });
+  document.querySelectorAll('input[name="l-pa-dose"]').forEach(function(el){
+    el.addEventListener('change', function(){
+      $('l-pa-autoflow').style.display=radioVal('l-pa-dose')==='in Auto'?'':'none';
+      lRender();
+    });
   });
   lRender();
 
