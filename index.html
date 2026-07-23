@@ -287,10 +287,19 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="name">Dosing CO&#8322;</span><span class="unit">Yes / No</span></div>
+      <div class="label"><span class="name">Dosing CO&#8322;</span><span class="unit">No / in Auto / Yes</span></div>
       <div class="seg" role="radiogroup" aria-label="Dosing CO2">
-        <input type="radio" name="l-dose" id="l-doseY" value="Yes"><label for="l-doseY">Yes</label>
         <input type="radio" name="l-dose" id="l-doseN" value="No"><label for="l-doseN">No</label>
+        <input type="radio" name="l-dose" id="l-doseA" value="in Auto"><label for="l-doseA">in Auto</label>
+        <input type="radio" name="l-dose" id="l-doseY" value="Yes"><label for="l-doseY">Yes</label>
+      </div>
+    </div>
+    <div class="field" id="l-ab-autoflow" style="display:none">
+      <div class="label"><span class="name">Auto Flow Rate</span><span class="unit">0.0 &#8211; 0.0</span></div>
+      <div class="row" style="align-items:center">
+        <input class="inp" id="l-ab-auto-low" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
+        <span style="display:flex;align-items:center;justify-content:center;min-width:32px;font-weight:700;color:var(--muted)">&#8211;</span>
+        <input class="inp" id="l-ab-auto-high" type="number" inputmode="decimal" step="0.1" min="0" placeholder="0.0" autocomplete="off">
       </div>
     </div>
     </div><!-- end l-ab-fields -->
@@ -335,7 +344,7 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="name">Totalizer FM</span><span class="unit">cu ft</span></div>
+      <div class="label"><span class="name">Totalizer FM</span><span class="unit" id="l-tot-unit">cu ft</span></div>
       <input class="inp" id="l-tot" type="number" inputmode="numeric" placeholder="Enter totalizer reading" autocomplete="off">
     </div>
 
@@ -652,10 +661,18 @@
       if(tank)  lines.push('Tank - EQ Tank '+tank);
       if(ph)    lines.push('pH = '+ph);
       if(lvl)   lines.push('Tank Level = '+lvl+' ft');
-      if(dose)  lines.push('Dosing CO2 - '+dose);
+      if(dose){
+        if(dose==='in Auto'){
+          var lo=$('l-ab-auto-low').value, hi=$('l-ab-auto-high').value;
+          var loF=lo!==''?parseFloat(lo).toFixed(1):'0.0', hiF=hi!==''?parseFloat(hi).toFixed(1):'0.0';
+          lines.push('Dosing CO2 - in Auto ('+loF+' - '+hiF+')');
+        } else {
+          lines.push('Dosing CO2 - '+dose);
+        }
+      }
     }
     if(disc) lines.push(disc);
-    if(tot)  lines.push('Totalizer FM = '+tot+' cu ft');
+    if(tot)  lines.push('Totalizer FM = '+tot+(tank==='PA'?' gal':' cu ft'));
     return lines;
   }
 
@@ -668,8 +685,10 @@
     $('l-ph').value=''; $('l-level').value=''; $('l-tot').value='';
     $('l-pa-ph-hmi').value=''; $('l-pa-ph-ml').value='';
     $('l-pa-level').value=''; $('l-pa-auto-low').value=''; $('l-pa-auto-high').value='';
+    $('l-ab-auto-low').value=''; $('l-ab-auto-high').value='';
     document.querySelectorAll('input[name="l-dose"],input[name="l-disc"],input[name="l-pa-dose"]').forEach(function(r){ r.checked=false; });
     $('l-pa-autoflow').style.display='none';
+    $('l-ab-autoflow').style.display='none';
     lUpdateTankView();
   }
 
@@ -677,6 +696,7 @@
     var isPA=$('l-tank').value==='PA';
     $('l-ab-fields').style.display=isPA?'none':'';
     $('l-pa-fields').style.display=isPA?'':'none';
+    $('l-tot-unit').textContent=isPA?'gal':'cu ft';
     lRender();
   }
   $('l-tank').addEventListener('change', lUpdateTankView);
@@ -691,8 +711,18 @@
     el.addEventListener('input', lRender);
     el.addEventListener('change', lRender);
   });
-  document.querySelectorAll('input[name="l-dose"],input[name="l-disc"]').forEach(function(el){
+  ['l-ab-auto-low','l-ab-auto-high'].forEach(function(id){
+    var el=$(id);
+    el.addEventListener('input', lRender);
     el.addEventListener('change', lRender);
+  });
+  document.querySelectorAll('input[name="l-dose"],input[name="l-disc"]').forEach(function(el){
+    el.addEventListener('change', function(){
+      if(el.name==='l-dose'){
+        $('l-ab-autoflow').style.display=radioVal('l-dose')==='in Auto'?'':'none';
+      }
+      lRender();
+    });
   });
   document.querySelectorAll('input[name="l-pa-dose"]').forEach(function(el){
     el.addEventListener('change', function(){
