@@ -1,5 +1,5 @@
 /* Water Ops offline cache */
-var CACHE = 'waterops-v6';
+var CACHE = 'waterops-v7';
 var ASSETS = [
   './',
   './index.html',
