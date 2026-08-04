@@ -181,7 +181,7 @@
     <div class="menu-grid">
       <button class="menu-card" type="button" onclick="showScreen('screen-sample')">
         <div class="card-body">
-          <div class="card-title">EQ Sampling</div>
+          <div class="card-title">Quality Sampling</div>
           <div class="card-desc">Record sample readings for EQ / Lamella tanks</div>
         </div>
         <span class="card-arrow">&#8250;</span>
@@ -212,13 +212,13 @@
 </div>
 
 <!-- ================================================================
-     EQ SAMPLING SCREEN
+     QUALITY SAMPLING SCREEN
      ================================================================ -->
 <div id="screen-sample" class="screen">
   <div class="wrap tool-wrap">
     <button class="back-btn" type="button" onclick="goHome()">&#8249; Menu</button>
     <header>
-      <h1>EQ Sampling</h1>
+      <h1>Quality Sampling</h1>
       <p class="sub">Pick a tank, enter the readings you have. It formats the same way every time, ready to copy.</p>
     </header>
 
@@ -228,8 +228,8 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="name">EQ Sample Tank</span><span class="unit">EQ / Lamella</span></div>
-      <select class="inp" id="s-tank" aria-label="EQ Sample Tank">
+      <div class="label"><span class="name">Quality Sample Tank</span><span class="unit">EQ / Lamella</span></div>
+      <select class="inp" id="s-tank" aria-label="Quality Sample Tank">
         <option value="">&#8212; Select tank &#8212;</option>
         <option value="eqA">EQ Tank A</option>
         <option value="eqB">EQ Tank B</option>
@@ -518,7 +518,7 @@
   buildHourlyOptions('sb-time');
 
   /* ================================================================
-     EQ SAMPLING
+     QUALITY SAMPLING
   ================================================================ */
   var SF = {
     tss:       {out:'TSS',        label:'TSS',              ph_:'000',  int:true,  unit:' mg/L', lt:true },
@@ -533,8 +533,8 @@
     turbidity: {out:'Turbidity',  label:'Turbidity',        ph_:'000',  int:true,  unit:' NTU',  lt:true }
   };
   var ST = {
-    eqA:  {header:'EQ Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
-    eqB:  {header:'EQ Sample Tank B',    fields:['tss','turbidity','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
+    eqA:  {header:'Quality Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
+    eqB:  {header:'Quality Sample Tank B',    fields:['tss','turbidity','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
     lamA: {header:'Lamella A', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     lamB: {header:'Lamella B', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     paA:  {header:'Post Anoxic A',        fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
