@@ -228,8 +228,8 @@
     </div>
 
     <div class="field">
-      <div class="label"><span class="name">Quality Sample Tank</span><span class="unit">EQ / Lamella</span></div>
-      <select class="inp" id="s-tank" aria-label="Quality Sample Tank">
+      <div class="label"><span class="name">EQ Sample Tank</span><span class="unit">EQ / Lamella</span></div>
+      <select class="inp" id="s-tank" aria-label="EQ Sample Tank">
         <option value="">&#8212; Select tank &#8212;</option>
         <option value="eqA">EQ Tank A</option>
         <option value="eqB">EQ Tank B</option>
@@ -533,8 +533,8 @@
     turbidity: {out:'Turbidity',  label:'Turbidity',        ph_:'000',  int:true,  unit:' NTU',  lt:true }
   };
   var ST = {
-    eqA:  {header:'Quality Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
-    eqB:  {header:'Quality Sample Tank B',    fields:['tss','turbidity','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
+    eqA:  {header:'EQ Sample Tank A',    fields:['tss','ph','level','phosphate','sulfate','cod']},
+    eqB:  {header:'EQ Sample Tank B',    fields:['tss','turbidity','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
     lamA: {header:'Lamella A', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     lamB: {header:'Lamella B', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     paA:  {header:'Post Anoxic A',        fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
