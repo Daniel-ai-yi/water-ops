@@ -141,9 +141,12 @@
   .actionbar.hidden{display:none;}
   .actionbar .inner{max-width:600px;margin:0 auto;display:flex;gap:10px;width:100%;}
   button{font-family:var(--sans);cursor:pointer;border-radius:10px;font-weight:600;}
-  .copy{flex:1;background:var(--text);color:var(--bg);border:1.5px solid var(--text);font-size:16px;font-weight:700;min-height:54px;}
+  .copy,.telegram{flex:1;font-size:16px;font-weight:700;min-height:54px;}
+  .copy{background:var(--text);color:var(--bg);border:1.5px solid var(--text);}
   .copy:active{opacity:.85;}
   .copy.done{background:var(--bg);color:var(--text);}
+  .telegram{background:#0088cc;color:#fff;border:1.5px solid #0088cc;}
+  .telegram:active{opacity:.85;}
   .clear{background:var(--bg);color:var(--text);border:1.5px solid var(--line-dark);font-size:15px;padding:0 20px;min-height:54px;}
   button:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
   .hint{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:14px;}
@@ -536,6 +539,7 @@
 <div class="actionbar hidden" id="actionbar">
   <div class="inner">
     <button class="copy" id="copyBtn" type="button">Copy</button>
+    <button class="telegram" id="telegramBtn" type="button">Telegram</button>
     <button class="clear" id="clearBtn" type="button">Clear</button>
   </div>
 </div>
@@ -552,6 +556,7 @@
 
   var actionBar = $('actionbar');
   var copyBtn   = $('copyBtn');
+  var telegramBtn = $('telegramBtn');
   var clearBtn  = $('clearBtn');
   var currentScreen = 'screen-login';
 
@@ -977,6 +982,10 @@
     setTimeout(function(){ copyBtn.textContent='Copy entry'; copyBtn.classList.remove('done'); }, 1800);
   }
 
+  function getTelegramShareUrl(text){
+    return 'https://t.me/share/url?url=' + encodeURIComponent('https://daniel-ai-yi.github.io/water-ops/') + '&text=' + encodeURIComponent(text || '');
+  }
+
   function fallbackCopy(text){
     var ta=document.createElement('textarea');
     ta.value=text; ta.style.cssText='position:fixed;opacity:0;';
@@ -994,6 +1003,13 @@
     } else {
       fallbackCopy(text);
     }
+  });
+
+  telegramBtn.addEventListener('click', function(){
+    var text=getPlainText();
+    if(!text) return;
+    var url=getTelegramShareUrl(text);
+    window.open(url, '_blank', 'noopener,noreferrer');
   });
 
   clearBtn.addEventListener('click', function(){
