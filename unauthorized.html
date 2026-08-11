@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Awaiting Approval — Water Ops</title>
+<style>
+  :root{ --brand:#0072CE; --brand-dark:#005A9E; --muted:#5f5f5f; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:#fff;color:#000;padding:16px;
+  }
+  .card{
+    border:2px solid #000;border-top:6px solid var(--brand);border-radius:14px;
+    padding:28px 22px;max-width:340px;width:100%;text-align:center;
+  }
+  .mark{color:var(--brand);font-size:24px;letter-spacing:-0.5px;}
+  .mark b{font-weight:800;} .mark span{font-weight:300;}
+  .sub{color:var(--brand);font-size:11px;font-weight:600;margin-top:2px;}
+  h1{font-size:19px;margin:16px 0 8px;}
+  p{color:var(--muted);font-size:13.5px;line-height:1.5;}
+  a{display:inline-block;margin-top:18px;color:var(--brand-dark);font-weight:600;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark"><b>NALC&#10041;</b><span>Water</span></div>
+    <div class="sub">An Ecolab Company</div>
+    <h1>Account awaiting approval</h1>
+    <p>Your sign-in worked and your account is registered. An administrator must grant you access before you can use the Managed Operations Dashboard. Contact your site admin.</p>
+    <a href="/.auth/logout">Sign out</a>
+  </div>
+</body>
+</html>
