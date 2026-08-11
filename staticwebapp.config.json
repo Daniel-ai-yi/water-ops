@@ -1,0 +1,11 @@
+{
+  "$comment": "Azure Static Web Apps config — the SERVER-SIDE auth gate. Inert on any other host. Roles 'operator'/'admin' are granted by the admin via SWA role invitations. Activation runbook: .claude/skills/water-ops-auth-activation",
+  "routes": [
+    { "route": "/unauthorized.html", "allowedRoles": ["anonymous", "authenticated"] },
+    { "route": "/*", "allowedRoles": ["operator", "admin"] }
+  ],
+  "responseOverrides": {
+    "401": { "statusCode": 302, "redirect": "/.auth/login/aad?post_login_redirect_uri=/" },
+    "403": { "statusCode": 302, "redirect": "/unauthorized.html" }
+  }
+}

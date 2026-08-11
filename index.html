@@ -144,8 +144,6 @@
   .copy{flex:1;background:var(--text);color:var(--bg);border:1.5px solid var(--text);font-size:16px;font-weight:700;min-height:54px;}
   .copy:active{opacity:.85;}
   .copy.done{background:var(--bg);color:var(--text);}
-  .tg{flex:1;background:#2CA5E0;color:#fff;border:1.5px solid #2CA5E0;font-size:16px;font-weight:700;min-height:54px;}
-  .tg:active{opacity:.85;}
   .clear{background:var(--bg);color:var(--text);border:1.5px solid var(--line-dark);font-size:15px;padding:0 20px;min-height:54px;}
   button:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
   .hint{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:14px;}
@@ -162,6 +160,62 @@
   .slvl-btn.active{background:var(--text);color:var(--bg);font-weight:700;}
   .slvl-btn:active{opacity:.85;}
   .slvl-btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+
+  /* ================================================================
+     NALCO BRAND THEME (added 2026-08-10)
+     Brand blue approximated from the NALCO Water logo; swap the hex
+     once an official brand value is confirmed.
+     ================================================================ */
+  :root{ --brand:#0072CE; --brand-dark:#005A9E; --brand-soft:#E9F3FC; }
+  header{border-bottom-color:var(--brand);}
+  .card-arrow{color:var(--brand);}
+  .menu-card:active{background:var(--brand-soft);}
+  .seg input:checked+label{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .lt[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .slvl-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .copy{background:var(--brand);border-color:var(--brand);}
+  .copy.done{background:var(--bg);color:var(--brand);border-color:var(--brand);}
+  .back-btn{color:var(--brand-dark);}
+
+  /* ---- NALCO wordmark (inline fallback; replace with official PNG asset when provided) ---- */
+  .nalco-mark{line-height:1.05;}
+  .nalco-top{display:flex;align-items:center;font-size:26px;letter-spacing:-0.5px;color:var(--brand);}
+  .nalco-bold{font-weight:800;}
+  .nalco-light{font-weight:300;}
+  .nalco-dot{display:inline-flex;width:23px;height:23px;margin:0 1px;}
+  .nalco-dot svg{width:100%;height:100%;display:block;}
+  .nalco-sub{font-size:11.5px;font-weight:600;color:var(--brand);margin-top:2px;}
+
+  /* ---- Dashboard (home) ---- */
+  .dash-head{border-bottom:3px solid var(--brand);}
+  .dash-head h1{font-size:24px;}
+  .brandbar{display:flex;align-items:center;gap:14px;padding:6px 0 14px;flex-wrap:wrap;}
+  .brand-sep{width:1.5px;height:36px;background:var(--line);}
+  .qcell-mark{font-size:21px;font-weight:800;letter-spacing:0.05em;color:#0B3B66;}
+  .unit{margin-top:22px;}
+  .unit-title{
+    font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--brand-dark);
+    border-left:4px solid var(--brand);padding-left:10px;
+  }
+  .unit .menu-grid{margin-top:12px;}
+
+  /* ---- Login screen ---- */
+  #screen-login .wrap{min-height:88vh;display:flex;align-items:center;justify-content:center;}
+  .login-card{
+    border:2px solid var(--line-dark);border-top:6px solid var(--brand);
+    border-radius:14px;padding:28px 22px;max-width:340px;width:100%;text-align:center;
+  }
+  .login-card .nalco-top{justify-content:center;}
+  .login-card .brandbar{justify-content:center;padding-bottom:6px;}
+  .login-title{font-size:20px;margin:12px 0 6px;}
+  .btn-primary{
+    display:block;width:100%;margin-top:18px;min-height:52px;
+    background:var(--brand);border:1.5px solid var(--brand);color:#fff;
+    font-size:16px;font-weight:700;border-radius:10px;
+  }
+  .btn-primary:active{opacity:.85;}
+  #login-signout{display:inline-block;margin-top:16px;color:var(--brand-dark);font-weight:600;}
 </style>
 </head>
 <body>
@@ -170,14 +224,45 @@
 </noscript>
 
 <!-- ================================================================
-     HOME SCREEN
+     LOGIN SCREEN (Azure Static Web Apps auth template — see
+     .claude/skills/water-ops-auth-activation for how it goes live)
      ================================================================ -->
-<div id="screen-home" class="screen active">
+<div id="screen-login" class="screen active">
   <div class="wrap">
-    <header>
-      <h1>Water Ops</h1>
-      <p class="sub">Select a tool to get started.</p>
+    <div class="login-card">
+      <div class="nalco-mark" role="img" aria-label="NALCO Water — An Ecolab Company">
+        <div class="nalco-top"><span class="nalco-bold">NALC</span><span class="nalco-dot"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#0072CE"/><path d="M12 3.2l2.1 6.7 6.7 2.1-6.7 2.1-2.1 6.7-2.1-6.7-6.7-2.1 6.7-2.1z" fill="#fff"/></svg></span><span class="nalco-light">Water</span></div>
+        <div class="nalco-sub">An Ecolab Company</div>
+      </div>
+      <h1 class="login-title">Managed Operations</h1>
+      <p class="sub" id="login-msg">Checking sign-in status&hellip;</p>
+      <button class="btn-primary" id="login-signin" type="button" style="display:none">Sign in</button>
+      <button class="btn-primary" id="login-continue" type="button" style="display:none">Continue (preview)</button>
+      <a id="login-signout" href="/.auth/logout" style="display:none">Sign out</a>
+      <p class="hint" id="login-note" style="display:none">Access requires admin approval after registration.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     DASHBOARD (HOME) SCREEN
+     ================================================================ -->
+<div id="screen-home" class="screen">
+  <div class="wrap">
+    <header class="dash-head">
+      <div class="brandbar">
+        <div class="nalco-mark" role="img" aria-label="NALCO Water — An Ecolab Company">
+          <div class="nalco-top"><span class="nalco-bold">NALC</span><span class="nalco-dot"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#0072CE"/><path d="M12 3.2l2.1 6.7 6.7 2.1-6.7 2.1-2.1 6.7-2.1-6.7-6.7-2.1 6.7-2.1z" fill="#fff"/></svg></span><span class="nalco-light">Water</span></div>
+          <div class="nalco-sub">An Ecolab Company</div>
+        </div>
+        <span class="brand-sep" aria-hidden="true"></span>
+        <span class="qcell-mark">QCELL</span>
+      </div>
+      <h1>Managed Operations Dashboard</h1>
+      <p class="sub">Select a unit and tool to get started.</p>
     </header>
+    <section class="unit" id="unit-u3">
+      <h2 class="unit-title">U3</h2>
     <div class="menu-grid">
       <button class="menu-card" type="button" onclick="showScreen('screen-sample')">
         <div class="card-body">
@@ -208,6 +293,7 @@
         <span class="card-arrow">&#8250;</span>
       </button>
     </div>
+    </section>
   </div>
 </div>
 
@@ -449,7 +535,6 @@
      ================================================================ -->
 <div class="actionbar hidden" id="actionbar">
   <div class="inner">
-    <button class="tg" id="tgBtn" type="button">Telegram</button>
     <button class="copy" id="copyBtn" type="button">Copy</button>
     <button class="clear" id="clearBtn" type="button">Clear</button>
   </div>
@@ -468,8 +553,7 @@
   var actionBar = $('actionbar');
   var copyBtn   = $('copyBtn');
   var clearBtn  = $('clearBtn');
-  var tgBtn     = $('tgBtn');
-  var currentScreen = 'screen-home';
+  var currentScreen = 'screen-login';
 
   /* ----------------------------------------------------------------
      Screen management
@@ -478,12 +562,59 @@
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     $(id).classList.add('active');
     currentScreen = id;
-    actionBar.classList.toggle('hidden', id === 'screen-home');
+    actionBar.classList.toggle('hidden', id === 'screen-home' || id === 'screen-login');
     window.scrollTo(0, 0);
   }
   function goHome(){ showScreen('screen-home'); }
   window.showScreen = showScreen;
   window.goHome = goHome;
+
+  /* ----------------------------------------------------------------
+     Authentication gate (Azure Static Web Apps template)
+     - On Azure SWA the REAL gate is server-side: staticwebapp.config.json
+       route rules require the 'operator' or 'admin' role before any file
+       is served. This client logic only decides which login-screen state
+       to show and reads /.auth/me for the signed-in user.
+     - On any other host (localhost, plain static hosting) /.auth/me does
+       not exist -> PREVIEW MODE: clearly labeled, no security implied.
+     - Offline (installed PWA, no network): the operator was already
+       approved when the app was installed; entry is allowed.
+     Activation runbook: .claude/skills/water-ops-auth-activation
+  ---------------------------------------------------------------- */
+  var AUTH_ROLES = ['operator','admin'];
+  function authShow(state){
+    var msg=$('login-msg');
+    ['login-signin','login-continue','login-signout','login-note'].forEach(function(id){ $(id).style.display='none'; });
+    if(state==='signin'){
+      msg.textContent='Sign in with your company account to continue.';
+      $('login-signin').style.display=''; $('login-note').style.display='';
+    } else if(state==='pending'){
+      msg.textContent='Your account is registered and awaiting admin approval.';
+      $('login-signout').style.display=''; $('login-note').style.display='';
+    } else if(state==='preview'){
+      msg.textContent='Authentication is not active on this host (preview mode). Deploy to Azure Static Web Apps to enforce sign-in.';
+      $('login-continue').style.display='';
+    }
+  }
+  function authEnter(){ showScreen('screen-home'); }
+  function authInit(){
+    fetch('/.auth/me',{credentials:'include'}).then(function(r){
+      if(!r.ok) throw new Error('no auth endpoint');
+      return r.json();
+    }).then(function(d){
+      var p=d&&d.clientPrincipal;
+      if(!p){ authShow('signin'); }
+      else if(p.userRoles && AUTH_ROLES.some(function(x){ return p.userRoles.indexOf(x)>=0; })){ authEnter(); }
+      else { authShow('pending'); }
+    }).catch(function(){
+      if(!navigator.onLine){ authEnter(); return; }
+      authShow('preview');
+    });
+  }
+  $('login-signin').addEventListener('click', function(){
+    location.href='/.auth/login/aad?post_login_redirect_uri='+encodeURIComponent(location.pathname);
+  });
+  $('login-continue').addEventListener('click', authEnter);
 
   /* ----------------------------------------------------------------
      Build 30-min time dropdown options, auto-select nearest slot
@@ -865,12 +996,6 @@
     }
   });
 
-  tgBtn.addEventListener('click', function(){
-    var text = getPlainText();
-    if(!text) return;
-    window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(text), '_blank');
-  });
-
   clearBtn.addEventListener('click', function(){
     if(currentScreen==='screen-sample') sClear();
     else if(currentScreen==='screen-log') lClear();
@@ -879,8 +1004,9 @@
   });
 
   /* ================================================================
-     SERVICE WORKER
+     AUTH GATE + SERVICE WORKER
   ================================================================ */
+  authInit();
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
   }
