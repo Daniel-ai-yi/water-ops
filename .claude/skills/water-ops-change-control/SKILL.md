@@ -40,7 +40,7 @@ Run this loop for EVERY change, however small.
 4. **Make the edit**, matching house style (below).
 5. **Manually verify** per the `water-ops-validation-and-qa` checklist — every screen renders, copy output matches spec character-for-character, clear works, security greps pass. That skill owns the checklist; do not improvise a subset.
 6. **Bump the service-worker cache name on EVERY deploy.** In `sw.js`, change `var CACHE = 'waterops-vN';` to `vN+1`. This is the app's ONLY update mechanism: the fetch handler is cache-first, so a stale service worker serves the old app forever until a byte-different `sw.js` installs, `skipWaiting()`s, and deletes old caches on activate. Deploying new `index.html` without bumping the cache name means users never see your change. As of 2026-08-10 the current name is `waterops-v9`, so the next deploy ships `waterops-v10`. Full lifecycle detail: `water-ops-pwa-and-mobile-playbook`.
-7. **Deploy = copy static files.** There is nothing else. Copy the changed files (up to six: `index.html`, `sw.js`, `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `apple-touch-icon-180.png` — file list owned by `water-ops-build-and-env`) to the static host (as of 2026-08-10: GitHub Pages at `https://daniel-ai-yi.github.io/water-ops/`, i.e. push to the `Daniel-ai-yi/water-ops` repo's default branch; Azure move planned — re-confirm the origin if time has passed). Then verify the update actually propagates on a real device (QA skill, install/offline cycle item).
+7. **Deploy = copy static files.** There is nothing else. Copy the changed files (up to eight as of 2026-08-10, incl. `staticwebapp.config.json` and `unauthorized.html` — file list owned by `water-ops-build-and-env`) to the static host (as of 2026-08-10: GitHub Pages at `https://daniel-ai-yi.github.io/water-ops/`, i.e. push to the `Daniel-ai-yi/water-ops` repo's default branch; Azure move planned — re-confirm the origin if time has passed). Then verify the update actually propagates on a real device (QA skill, install/offline cycle item).
 
 ## Non-negotiables
 
@@ -77,7 +77,7 @@ Owner-approved directions. Anything NOT on this list that changes behavior, outp
 
 | Work item | Status |
 |---|---|
-| Remove Telegram integration (`tgBtn` button, `.tg` CSS, `t.me/share/url` handler) | Sanctioned now — Telegram bot is being retired |
+| ~~Remove Telegram integration~~ | DONE 2026-08-10 (commit 8ee7a8d) — app now has zero external requests |
 | NALCO Ecolab visual theming | Sanctioned |
 | Login screen (username/password gate) | Sanctioned direction; design constraints in platform-campaign (no client-side credentials — rule 2) |
 | Azure migration (off the public GitHub Pages origin `daniel-ai-yi.github.io/water-ops`; repo public as of 2026-08-10) | Sanctioned; closes the public-repo/public-origin confidentiality gap |
@@ -102,7 +102,7 @@ Facts above verified against the app file and the owner-supplied `sw.js` on 2026
 - innerHTML uses that must stay escaped/audited: `grep -n "innerHTML" index*.html`
 - Duplication trap still exists (two independent sample line-builders): `grep -n "lines=\['Time - '+tDisp, t.header, ''\]" index*.html` (2 hits = still duplicated; 1 hit = refactored, update this skill)
 - Current SW cache name: `grep -n "var CACHE" sw.js 2>/dev/null || echo "sw.js absent locally (lives in repo)"`
-- No third-party origins crept in: `grep -nE "https?://" index*.html sw.js 2>/dev/null` (expect only the deprecated `t.me` share URL until Telegram removal lands, then none)
+- No third-party origins crept in: `grep -nE "https?://" index*.html sw.js 2>/dev/null` (expect NONE since the 2026-08-10 Telegram removal)
 - No secrets: `grep -niE "password|token|api[_-]?key|secret" index*.html` (expect no hits, except login-screen UI text if/when that ships)
 - Telegram removal status: `grep -n "tgBtn" index*.html` (hits = not yet removed)
 - Id-prefix convention holds: `grep -oE 'id="(s|l|f|sb)-[a-z0-9-]+"' index*.html | sort -u`

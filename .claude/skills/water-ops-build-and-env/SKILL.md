@@ -31,15 +31,15 @@ no third-party code is allowed.
 
 Nothing else. No runtime, no server-side code, no database.
 
-## The deployable artifact (exactly 6 files)
+## The deployable artifact (8 files as of 2026-08-10)
 
 `index.html`, `sw.js`, `manifest.webmanifest`, `icon-192.png`,
-`icon-512.png`, `apple-touch-icon-180.png`.
+`icon-512.png`, `apple-touch-icon-180.png`, plus (added 2026-08-10 with the
+auth template) `staticwebapp.config.json` (Azure SWA server-side auth rules;
+inert on other hosts) and `unauthorized.html` (awaiting-approval page).
 
-"Deploy" = copy these 6 files to the static host root. That is the entire
-pipeline. Note: `sw.js` is currently absent from the local working folder —
-do not forget it; its canonical content lives in
-`water-ops-pwa-and-mobile-playbook`.
+"Deploy" = copy these 8 files to the static host root. That is the entire
+pipeline. All 8 are tracked at the repo root of Daniel-ai-yi/water-ops.
 
 ## Traps
 

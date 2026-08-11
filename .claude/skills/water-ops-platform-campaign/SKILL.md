@@ -23,7 +23,7 @@ order, without overselling or silently breaking what already works.
 ## The driving tension (state it honestly)
 
 Water Ops today is a single static `index.html` (~890 lines, vanilla HTML/CSS/JS): no
-build step, no framework, no backend, no external requests except one Telegram share link,
+build step, no framework, no backend, no external requests (Telegram link removed 2026-08-10),
 works fully offline via a cache-first service worker. Those properties are why it is
 reliable in the field.
 
@@ -49,7 +49,7 @@ before its gate is even considered.
 
 | Fact | Evidence in `index.html` (local WIP file `index[23].html`; re-verify line numbers) |
 |---|---|
-| Telegram touchpoints exist | `.tg` CSS rule (~line 147–148), `<button class="tg" id="tgBtn">` in `#actionbar` (~452), `var tgBtn = $('tgBtn')` (~471), click handler opening `https://t.me/share/url?url=&text=...` (~868–872) |
+| Telegram touchpoints | REMOVED 2026-08-10 (Stage A complete, commit 8ee7a8d) — the app now makes zero external requests |
 | Only external request in the app | That `t.me/share/url` `window.open` — nothing else (no fetch/XHR, no CDN) |
 | No auth code of any kind | grep for `password`, `login`, `auth` finds nothing |
 | Public repo + public origin | Canonical repo `https://github.com/Daniel-ai-yi/water-ops` is PUBLIC (anonymous clone works, verified 2026-08-10); its HEAD `index.html` is byte-identical to the current local working file (the repo is current). The app is live on public GitHub Pages at `https://daniel-ai-yi.github.io/water-ops/` (verified serving `waterops-v9`, 2026-08-10) |
@@ -59,7 +59,11 @@ before its gate is even considered.
 
 ---
 
-## Stage A — De-Telegram (sanctioned NOW; smallest step; do first)
+## Stage A — De-Telegram — ✅ COMPLETE 2026-08-10 (commit 8ee7a8d, merged to main)
+
+Kept below for the record; the removal shipped together with the auth template and NALCO
+dashboard redesign (see `water-ops-auth-activation`). `grep -in "tgBtn|t\.me" index.html`
+now returns nothing.
 
 **Goal.** Remove every Telegram touchpoint from the app.
 

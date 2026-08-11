@@ -77,7 +77,7 @@ bumping the SW cache name (see water-ops-change-control).
 A plant operator on rounds:
 
 1. Launches Water Ops from the phone home-screen icon (or a browser tab).
-2. Picks a tool from the home menu. The action bar (Telegram / Copy / Clear)
+2. Picks a tool from the dashboard's U3 section. The action bar (Copy / Clear)
    appears on every tool screen and is hidden on home.
 3. The Time dropdown has already auto-selected the nearest slot:
    - Quality Sampling, EQ Log, Parshall Flume use 30-minute slots
@@ -91,11 +91,14 @@ A plant operator on rounds:
 5. Watches the live "Field Entry" preview, taps **Copy**, and pastes the text
    into the company log channel.
 
-**Telegram button — DEPRECATED as of 2026-08-10.** It opens
-`https://t.me/share/url?url=&text=<encoded entry>` in a new tab. The Telegram
-bot that historically parsed these entries is retired; removing the Telegram
-code (`tgBtn`, `.tg` CSS, the share handler) is sanctioned work — see
-water-ops-platform-campaign and water-ops-change-control before doing it.
+**Telegram button — REMOVED 2026-08-10** (commit 8ee7a8d). The action bar is
+now Copy / Clear only. The Telegram bot that historically parsed entries is
+retired; the exact-format contract below still stands because entries are
+pasted into company records. History: water-ops-failure-archaeology.
+
+**Login screen — since 2026-08-10 the app opens on a login screen**, not the
+dashboard. On non-Azure hosts it shows labeled "preview mode" with a Continue
+button (tap it to reach the tools). Details: water-ops-auth-activation.
 
 **Nothing is saved.** There is no localStorage/sessionStorage/IndexedDB
 anywhere. Leaving the page or reloading loses all entries. As of 2026-08-10
