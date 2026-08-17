@@ -18,9 +18,6 @@ self.addEventListener('activate', function(e){
 });
 self.addEventListener('fetch', function(e){
   if(e.request.method!=='GET') return;
-  /* Never intercept or cache auth endpoints (Azure SWA /.auth/*):
-     a cached auth response would freeze sign-in/role state. */
-  if(e.request.url.indexOf('/.auth/')>=0) return;
   e.respondWith(
     caches.match(e.request).then(function(hit){
       return hit || fetch(e.request).then(function(res){
