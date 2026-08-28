@@ -236,6 +236,7 @@
         <option value="lamA">Lamella A</option>
         <option value="lamB">Lamella B</option>
         <option value="paA">Post Anoxic A</option>
+        <option value="paB">Post Anoxic B</option>
       </select>
     </div>
 
@@ -272,6 +273,7 @@
         <option value="A">EQ Tank A</option>
         <option value="B">EQ Tank B</option>
         <option value="PA">Post Anoxic A</option>
+        <option value="PB">Post Anoxic B</option>     
       </select>
     </div>
 
@@ -545,7 +547,9 @@
     eqB:  {header:'EQ Sample Tank B',    fields:['tss','turbidity','phosphate','sulfate','h2o2','alkalinity','cod','fluoride']},
     lamA: {header:'Lamella A', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
     lamB: {header:'Lamella B', fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
-    paA:  {header:'Post Anoxic A',        fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
+    paA:  {header:'Post Anoxic A',        fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']},
+    paB:  {header:'Post Anoxic B',        fields:['tss','turbidity','ph','level','phosphate','sulfate','h2o2','alkalinity','cod']}
+    
   };
   var sVals={}, sLt={};
 
@@ -647,8 +651,8 @@
     var tv=$('l-time').value;
     var tDisp=tv.substring(0,2)+':'+tv.substring(2,4);
     var lines=['Time: '+tDisp];
-    if(tank==='PA'){
-      lines.push('Tank - Post Anoxic A');
+    if(tank==='PA' || tank==='PB'){
+      lines.push('Tank - ' + (tank==='PA'?'Post Anoxic A':'Post Anoxic B'));
       var phHmi=lFmtPh($('l-pa-ph-hmi').value), phMl=lFmtPh($('l-pa-ph-ml').value);
       var lvl=lFmtLevel($('l-pa-level').value), dose=radioVal('l-pa-dose');
       if(phHmi) lines.push('pH = '+phHmi+' at HMI');
@@ -680,7 +684,7 @@
       }
     }
     if(disc) lines.push(disc);
-    if(tot)  lines.push('Totalizer FM = '+tot+(tank==='PA'?' gal':' cu ft'));
+    if(tot)  lines.push('Totalizer FM = '+tot+(tank==='PA' || tank==='PB'?' gal':' cu ft'));
     return lines;
   }
 
@@ -701,7 +705,7 @@
   }
 
   function lUpdateTankView(){
-    var isPA=$('l-tank').value==='PA';
+    var isPA= ['PA','PB'].includes($('l-tank').value);
     $('l-ab-fields').style.display=isPA?'none':'';
     $('l-pa-fields').style.display=isPA?'':'none';
     $('l-tot-unit').textContent=isPA?'gal':'cu ft';
@@ -877,10 +881,13 @@
   });
 
   tgBtn.addEventListener('click', function(){
-    var text = getPlainText();
-    if(!text) return;
-    window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(text), '_blank');
-  });
+  var text = getPlainText();
+  if(!text) return;
+  window.open(
+    'https://t.me/share/url?url=&text=' + encodeURIComponent(text),
+    '_blank'
+  );
+});
 
   clearBtn.addEventListener('click', function(){
     if(currentScreen==='screen-sample') sClear();
